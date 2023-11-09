@@ -2,11 +2,18 @@ import React, { useState } from 'react';
 import FavIcon from './FavIcon';
 import '../styles/PhotoFavButton.scss';
 
-function PhotoFavButton() {
+function PhotoFavButton(props) {
   const [isFavorited, setIsFavorited] = useState(false);
+  const {addFavoritePhoto, photoId} = props;
 
   const handleClick = () => {
-    setIsFavorited(!isFavorited); // Toggle the isFavorited state
+    if (isFavorited) {
+      setIsFavorited(false);
+    }
+    else {
+      setIsFavorited(true);
+      addFavoritePhoto(photoId);
+    }
   }
 
   // Define the style object

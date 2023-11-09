@@ -16,9 +16,11 @@ const PhotoList = (props) => {
         full={full}
         name={name}
         profile={profile}
+        setFavoritePhotos={props.setFavoritePhotos}
       />
     );
   });
+  
   return (
     <ul className="photo-list">
       {photoArray}
