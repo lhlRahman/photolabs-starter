@@ -1,30 +1,39 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
+
 import FavIcon from './FavIcon';
 import '../styles/PhotoFavButton.scss';
+import FavBadge from './FavBadge';
 
-function PhotoFavButton(props) {
-  const [isFavorited, setIsFavorited] = useState(false);
-  const {addFavoritePhoto, photoId} = props;
+const PhotoFavButton = (props) => {
+  const [displayAlert, setDisplayAlert] = useState(false);
+  const [selected, setSelected] = useState(false);
+  const {setFavorites, removeFromFavorites, isFavPhotoExist, photoId} = props;
 
-  const handleClick = () => {
-    if (isFavorited) {
-      setIsFavorited(false);
+  const handleIconClick = () => {
+    if (selected) {
+      setSelected(false);
+      removeFromFavorites(photoId);
+    } else {
+      setSelected(true);
+      setFavorites(photoId);
     }
-    else {
-      setIsFavorited(true);
-      addFavoritePhoto(photoId);
-    }
-  }
+  };
 
-  // Define the style object
+  useEffect(() => {
+    if (isFavPhotoExist) {
+      setDisplayAlert(true);
+    } else {
+      setDisplayAlert(false);
+    }
+  }, [isFavPhotoExist]);
 
   return (
-    <div className="photo-list__fav-icon" onClick={handleClick}>
-      <div className="photo-list__fav-icon-svg">
-      <FavIcon selected={isFavorited}/>
-      </div>
+    <div className="photo-list__fav-icon">
+      {
+        <FavIcon displayAlert= {displayAlert} selected={selected} onClick={handleIconClick}/>
+      }
     </div>
   );
-}
+};
 
 export default PhotoFavButton;
