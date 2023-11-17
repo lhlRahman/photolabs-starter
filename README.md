@@ -1,24 +1,26 @@
-# react-photolabs
-The PhotoLabs project for the Web Development React course programming.
+# PhotoLabs
 
-# Photolabs
+PhotoLabs is a web application that allows users to browse and search for stock photos based on different topics. Users can view a collection of photos, filter them by topic, and click on a photo to view a larger version along with a list of similar photos.
+
+## Technologies Used
+
+- React
+- Express
+- Axios
+- Create React App
+- Webpack
+- PostgreSQL
+
+## Screenshots
+
+![Main Page](/docs/photolabs.png)
+![Modal](/docs/modal.png)
 
 ## Setup
 
-Install dependencies with `npm install` in each respective `/frontend` and `/backend`.
+1. Install dependencies by running `npm install` in both the `/frontend` and `/backend` directories.
 
-## [Frontend] Running Webpack Development Server
-
-```sh
-cd frontend
-npm start
-```
-
-## [Backend] Running Backend Servier
-
-Read `backend/readme` for further setup details.
-
-```sh
-cd backend
-npm start
-```
+2. Start the Webpack development server for the frontend:
+   ```sh
+   cd frontend
+   npm start
