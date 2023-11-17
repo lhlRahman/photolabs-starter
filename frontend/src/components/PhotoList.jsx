@@ -4,6 +4,7 @@ import "../styles/PhotoList.scss";
 import PhotoListItem from "./PhotoListItem";
 
 const PhotoList = (props) => {
+  // Map through the photos array and create a PhotoListItem component for each photo
   const photoArray = props.photos.map((
     { id,
       location: { city, country },
@@ -29,10 +30,13 @@ const PhotoList = (props) => {
         displayAlert={props.displayAlert}
         onClick={props.onClick}
         similar_photos={similar_photos}
+        darkMode={props.darkMode}
       />
     );
   });
+
   return (
+    // Render the list of photos
     <ul className="photo-list">
       {photoArray}
     </ul>

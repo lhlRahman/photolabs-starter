@@ -1,54 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import './App.scss';
-import HomeRoute from './routes/HomeRoute';
+import HomeRoute from 'routes/HomeRoute';
+import photos from 'mocks/photos';
+import topics from 'mocks/topics';
 import PhotoDetailsModal from 'routes/PhotoDetailsModal';
-import useApplicationData from 'hooks/useApplicationData';
+import useApplicationData from './hook/useApplicationData';
 
 const App = () => {
-  const {
-    toggleFavorite,
-    updateAlert,
-    openModal,
-    closeModal,
-    addFavPhoto,
-    removeFavPhoto,
-    setCurrentTopic,
-    setSearchTerm,
-    isModalOpen,
-    selectedPhoto,
-    favorites,
-    selected,
-    displayAlert,
-    photos,
-    topics,
-  } = useApplicationData();
-
-  const isPhotoFavorited = (photo) => {
-    return favorites.has(photo);
-  };
+  // Destructure the values from the custom hook useApplicationData
+  const {isModalOpen, selectedPhoto, favorites, selected, displayAlert, openModal, closeModal, addFavPhoto, removeFavPhoto, iconLiked, iconUnliked} = useApplicationData();
 
   return (
+    // Container for the entire application
     <div className="App">
-      <HomeRoute
-        photos={photos}
-        topics={topics}
-        favorites={favorites}
-        selected={selected}
-        displayAlert={displayAlert}
-        addFavPhoto={addFavPhoto}
-        removeFavPhoto={removeFavPhoto}
-        onClick={openModal}
-        toggleFavorite={toggleFavorite}
-        updateAlert={updateAlert}
-        setCurrentTopic={setCurrentTopic}
-        setSearchTerm={setSearchTerm}
-      />
+      {/* Render the HomeRoute component */}
+      <HomeRoute photos={photos} topics={topics} favorites={favorites} selected={selected} displayAlert={displayAlert} addFavPhoto={addFavPhoto} removeFavPhoto={removeFavPhoto} onClick={openModal} iconLiked={iconLiked} iconUnliked={iconUnliked} />
+      {/* Render the PhotoDetailsModal component if the modal is open */}
       {isModalOpen && <PhotoDetailsModal
         {...selectedPhoto}
-        toggleFavorite={toggleFavorite}
-        isPhotoFavorited={isPhotoFavorited}
-        updateAlert={updateAlert}
         onClick={closeModal}
       />}
     </div>

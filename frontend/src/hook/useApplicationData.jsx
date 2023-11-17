@@ -4,6 +4,7 @@ import axios from 'axios';
 
 const useApplicationData = () => {
   const [state, dispatch] = useReducer(reducer, {
+    // Initial state
     isModalOpen: false,
     selectedPhoto: null,
     selected: false,
@@ -12,9 +13,12 @@ const useApplicationData = () => {
     topics: [],
     favorites: new Set(),
     currentTopic: null,
-    searchTerm: null
+    searchTerm: null,
+    displayFavorites: false,
+    darkMode: false
   });
 
+  // Action functions
   const closeModal = () => {
     dispatch({ type: ACTIONS.CLOSE_MODAL });
   };
@@ -57,6 +61,14 @@ const useApplicationData = () => {
     return state.displayAlert;
   };
 
+  const showFavorites = () => {
+    if (state.displayFavorites) {
+      dispatch({ type: ACTIONS.HIDE_FAVORITES });
+    } else {
+      dispatch({ type: ACTIONS.SHOW_FAVORITES });
+    }
+  };
+
   // if already favorited, remove from favorites - else add to favorites
   const toggleFavorite = (photoId) => {
     const isFavorited = state.favorites.has(photoId);
@@ -67,6 +79,11 @@ const useApplicationData = () => {
     }
   };
 
+  const toggleDarkMode = () => {
+    dispatch({ type: ACTIONS.TOGGLE_DARK_MODE });
+  };
+
+  // Fetch functions
   const fetchPhotos = useCallback(() => {
     axios.get('/api/photos')
       .then((res) => setPhotoData(res.data))
@@ -81,30 +98,54 @@ const useApplicationData = () => {
 
   const fetchCurrentTopic = useCallback(() => {
     axios.get(`/api/topics/photos/${state.currentTopic}`)
-      .then((res) => setPhotoData(res.data))
+      .then((res) => {
+        if (state.displayFavorites) {
+          const favoritedPhotos = res.data.filter((photo) => state.favorites.has(photo.id));
+          setPhotoData(favoritedPhotos);
+        } else {
+          setPhotoData(res.data);
+        }
+      })
       .catch((error) => console.error("Error occurred: ", error));
   }, [setPhotoData]);
 
-  const fetchSearchResult = useCallback(() => {
+  const fetchSearchResult = useCallback(() => { 
     axios.get(`/api/photos/${state.searchTerm}`)
-      .then((res) => {setPhotoData(res.data)})
+      .then((res) => {
+        if (state.displayFavorites) {
+          const favoritedPhotos = res.data.filter((photo) => state.favorites.has(photo.id));
+          setPhotoData(favoritedPhotos);
+        } else {
+          setPhotoData(res.data);
+        }
+      })
       .catch((error) => console.error("Error occurred: ", error));
   }, [setPhotoData]);
 
-  // fetch + render photos/topics and if the current topic changes, re-render with the right photos
+  const fetchFavorites = useCallback(() => {
+    axios.get('/api/photos')
+      .then((res) => {
+        const favoritedPhotos = res.data.filter((photo) => state.favorites.has(photo.id));
+        setPhotoData(favoritedPhotos);
+      })
+      .catch((error) => console.error("Error occurred: ", error));
+  });
+
+  // Fetch + render photos/topics and if the current topic changes, re-render with the right photos
   useEffect(() => {
     fetchTopics();
     if (state.searchTerm) {
       fetchSearchResult();
-    } else
-    if (state.currentTopic) {
+    } else if (state.currentTopic) {
       fetchCurrentTopic();
+    } else if (state.displayFavorites) {
+      fetchFavorites();
     } else {
       fetchPhotos();
     }
-  }, [state.currentTopic, state.searchTerm]);
-  
+  }, [state.currentTopic, state.searchTerm, state.displayFavorites, state.favorites, state.darkMode]);
 
+  // Return state and action functions
   return {
     isModalOpen: state.isModalOpen,
     selectedPhoto: state.selectedPhoto,
@@ -114,6 +155,8 @@ const useApplicationData = () => {
     photos: state.photos,
     topics: state.topics,
     searchTerm: state.searchTerm,
+    displayFavorites: state.displayFavorites,
+    darkMode: state.darkMode,
     addFavPhoto,
     removeFavPhoto,
     updateAlert,
@@ -121,7 +164,9 @@ const useApplicationData = () => {
     setCurrentTopic,
     openModal,
     closeModal,
-    setSearchTerm
+    setSearchTerm,
+    showFavorites,
+    toggleDarkMode
   };
 };
 

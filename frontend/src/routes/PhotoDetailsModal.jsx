@@ -19,7 +19,8 @@ const PhotoDetailsModal = (props) => {
     isPhotoFavorited,
     similar_photos,
     toggleFavorite,
-    updateAlert
+    updateAlert,
+    darkMode
   } = props;
 
   // convert similar_photos from an object of objects to an array of objects
@@ -31,11 +32,13 @@ const PhotoDetailsModal = (props) => {
   ));
 
   return (
-    <div className="photo-details-modal">
+    // Container for the photo details modal
+    <div className={`photo-details-modal${darkMode ? '-dark-mode' : ''}`}>
       <button className="photo-details-modal__close-button">
         <img src={closeSymbol} alt="close symbol" onClick={()=> onClick()}/>
       </button>
       <div className="photo-details-modal__images">
+        {/* Render the PhotoFavButton component */}
         <PhotoFavButton
           setFavorites={setFavorites}
           removeFromFavorites={removeFromFavorites}
@@ -56,6 +59,7 @@ const PhotoDetailsModal = (props) => {
         <section className="photo-details-modal__header">Similar Photos</section>
       </div>
       <section className="photo-details-modal__images">
+        {/* Render the PhotoList component */}
         <PhotoList
           photos={similarPhotos}
           setFavorites={setFavorites}
@@ -64,6 +68,7 @@ const PhotoDetailsModal = (props) => {
           toggleFavorite={toggleFavorite}
           updateAlert={updateAlert}
           similarPhotos={similar_photos}
+          darkMode={darkMode}
         />
       </section>
     </div>

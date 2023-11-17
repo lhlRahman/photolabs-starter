@@ -15,14 +15,15 @@ const PhotoFavButton = (props) => {
   const selected = isPhotoFavorited(photoId);
   let displayAlert = false;
 
-  // on click, update the favorites display alert & toggle favorite heart
+  // Handle the click event when the favorite icon is clicked
   const handleIconClick = () => {
-    toggleFavorite(photoId);
-    displayAlert = updateAlert();
+    toggleFavorite(photoId); // Toggle the favorite status of the photo
+    displayAlert = updateAlert(); // Update the display alert for favorites
   };
 
   return (
     <div className="photo-list__fav-icon">
+      {/* Render the FavIcon component */}
       {
         <FavIcon displayAlert= {displayAlert} selected={selected} onClick={handleIconClick}/>
       }
