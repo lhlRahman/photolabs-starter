@@ -1,20 +1,54 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import './App.scss';
-import HomeRoute from 'routes/HomeRoute';
-import photos from 'mocks/photos';
-import topics from 'mocks/topics';
+import HomeRoute from './routes/HomeRoute';
 import PhotoDetailsModal from 'routes/PhotoDetailsModal';
-import useApplicationData from './hook/useApplicationData';
+import useApplicationData from 'hooks/useApplicationData';
 
 const App = () => {
-  const {isModalOpen, selectedPhoto, favorites, selected, displayAlert, openModal, closeModal, addFavPhoto, removeFavPhoto, iconLiked, iconUnliked} = useApplicationData();
+  const {
+    toggleFavorite,
+    updateAlert,
+    openModal,
+    closeModal,
+    addFavPhoto,
+    removeFavPhoto,
+    setCurrentTopic,
+    setSearchTerm,
+    isModalOpen,
+    selectedPhoto,
+    favorites,
+    selected,
+    displayAlert,
+    photos,
+    topics,
+  } = useApplicationData();
+
+  const isPhotoFavorited = (photo) => {
+    return favorites.has(photo);
+  };
 
   return (
     <div className="App">
-      <HomeRoute photos={photos} topics={topics} favorites={favorites} selected={selected} displayAlert={displayAlert} addFavPhoto={addFavPhoto} removeFavPhoto={removeFavPhoto} onClick={openModal} iconLiked={iconLiked} iconUnliked={iconUnliked} />
+      <HomeRoute
+        photos={photos}
+        topics={topics}
+        favorites={favorites}
+        selected={selected}
+        displayAlert={displayAlert}
+        addFavPhoto={addFavPhoto}
+        removeFavPhoto={removeFavPhoto}
+        onClick={openModal}
+        toggleFavorite={toggleFavorite}
+        updateAlert={updateAlert}
+        setCurrentTopic={setCurrentTopic}
+        setSearchTerm={setSearchTerm}
+      />
       {isModalOpen && <PhotoDetailsModal
         {...selectedPhoto}
+        toggleFavorite={toggleFavorite}
+        isPhotoFavorited={isPhotoFavorited}
+        updateAlert={updateAlert}
         onClick={closeModal}
       />}
     </div>

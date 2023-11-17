@@ -1,40 +1,6 @@
-import React, { useEffect, useReducer } from 'react';
-
-export const ACTIONS = {
-  FAV_PHOTO_ADDED: 'FAV_PHOTO_ADDED',
-  FAV_PHOTO_REMOVED: 'FAV_PHOTO_REMOVED',
-  FAV_ICON_LIKED: 'FAV_ICON_LIKED',
-  FAV_ICON_UNLIKED: 'FAV_ICON_UNLIKED',
-  SET_PHOTO_DATA: 'SET_PHOTO_DATA',
-  SET_TOPIC_DATA: 'SET_TOPIC_DATA',
-  SELECT_PHOTO: 'SELECT_PHOTO',
-  DISPLAY_PHOTO_DETAILS: 'DISPLAY_PHOTO_DETAILS',
-  OPEN_MODAL: 'OPEN_MODAL',
-  CLOSE_MODAL: 'CLOSE_MODAL',
-  ADD_FAV_NOTIFICATION: 'ADD_FAV_NOTIFICATION',
-  REMOVE_FAV_NOTIFICATION: 'REMOVE_FAV_NOTIFICATION'
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-  case ACTIONS.OPEN_MODAL:
-    return { ...state, isModalOpen: true, selectedPhoto: action.payload };
-  case ACTIONS.CLOSE_MODAL:
-    return { ...state, isModalOpen: false, selectedPhoto: null };
-  case ACTIONS.FAV_PHOTO_ADDED:
-    return { ...state, favorites: new Set([...state.favorites, action.payload]) };
-  case ACTIONS.FAV_PHOTO_REMOVED:
-    return {...state, favorites: new Set([...state.favorites].filter(item => item !== action.payload)) };
-  case ACTIONS.FAV_ICON_LIKED:
-    return { ...state, selected: true };
-  case ACTIONS.FAV_ICON_UNLIKED:
-    return {...state, selected: false };
-  case ACTIONS.ADD_FAV_NOTIFICATION:
-    return {...state, displayAlert: state.favorites && state.favorites.size > 0 };
-  default:
-    return state;
-  }
-};
+import React, { useEffect, useReducer, useCallback } from 'react';
+import reducer, { ACTIONS } from '../reducers/reducer';
+import axios from 'axios';
 
 const useApplicationData = () => {
   const [state, dispatch] = useReducer(reducer, {
@@ -42,14 +8,12 @@ const useApplicationData = () => {
     selectedPhoto: null,
     selected: false,
     displayAlert: false,
-    favorites: new Set()
+    photos: [],
+    topics: [],
+    favorites: new Set(),
+    currentTopic: null,
+    searchTerm: null
   });
-
-  const isFavPhotoExist = state.favorites.size > 0 ? true : false;
-
-  useEffect(() => {
-    dispatch({ type: ACTIONS.ADD_FAV_NOTIFICATION });
-  }, [isFavPhotoExist]);
 
   const closeModal = () => {
     dispatch({ type: ACTIONS.CLOSE_MODAL });
@@ -67,17 +31,78 @@ const useApplicationData = () => {
     dispatch({ type: ACTIONS.FAV_PHOTO_REMOVED, payload: photoId });
   };
 
-  const iconLiked = () => {
-    dispatch({ type: ACTIONS.FAV_ICON_LIKED});
-  };
-  
-  const iconUnliked = () => {
-    dispatch({ type: ACTIONS.FAV_ICON_UNLIKED });
+  const setPhotoData = (photos) => {
+    dispatch({ type: ACTIONS.SET_PHOTO_DATA, payload: photos });
   };
 
-  const favPhotoExists = () => {
-    dispatch({ type: ACTIONS.ADD_FAV_NOTIFICATION });
+  const setTopicData = (topics) => {
+    dispatch({ type: ACTIONS.SET_TOPIC_DATA, payload: topics });
   };
+
+  const setSearchTerm = (searchTerm) => {
+    dispatch({ type: ACTIONS.SET_SEARCH_TERM, payload: searchTerm });
+  };
+
+  const setCurrentTopic = (topic) => {
+    // if the topic in the nav bar is clicked twice, return back to non-selected search
+    if (state.currentTopic !== null && state.currentTopic === topic) {
+      dispatch({ type: ACTIONS.SET_CURRENT_TOPIC, payload: null });
+    } else {
+      dispatch({ type: ACTIONS.SET_CURRENT_TOPIC, payload: topic });
+    }
+  };
+
+  const updateAlert = () => {
+    dispatch({ type: ACTIONS.ADD_FAV_NOTIFICATION });
+    return state.displayAlert;
+  };
+
+  // if already favorited, remove from favorites - else add to favorites
+  const toggleFavorite = (photoId) => {
+    const isFavorited = state.favorites.has(photoId);
+    if (isFavorited) {
+      removeFavPhoto(photoId);
+    } else {
+      addFavPhoto(photoId);
+    }
+  };
+
+  const fetchPhotos = useCallback(() => {
+    axios.get('/api/photos')
+      .then((res) => setPhotoData(res.data))
+      .catch((error) => console.error("Error occurred: ", error));
+  }, [setPhotoData]);
+
+  const fetchTopics = useCallback(() => {
+    axios.get('/api/topics')
+      .then((res) => setTopicData(res.data))
+      .catch((error) => console.error("Error occurred: ", error));
+  }, [setTopicData]);
+
+  const fetchCurrentTopic = useCallback(() => {
+    axios.get(`/api/topics/photos/${state.currentTopic}`)
+      .then((res) => setPhotoData(res.data))
+      .catch((error) => console.error("Error occurred: ", error));
+  }, [setPhotoData]);
+
+  const fetchSearchResult = useCallback(() => {
+    axios.get(`/api/photos/${state.searchTerm}`)
+      .then((res) => {setPhotoData(res.data)})
+      .catch((error) => console.error("Error occurred: ", error));
+  }, [setPhotoData]);
+
+  // fetch + render photos/topics and if the current topic changes, re-render with the right photos
+  useEffect(() => {
+    fetchTopics();
+    if (state.searchTerm) {
+      fetchSearchResult();
+    } else
+    if (state.currentTopic) {
+      fetchCurrentTopic();
+    } else {
+      fetchPhotos();
+    }
+  }, [state.currentTopic, state.searchTerm]);
   
 
   return {
@@ -86,13 +111,17 @@ const useApplicationData = () => {
     favorites: state.favorites,
     selected: state.selected,
     displayAlert: state.displayAlert,
+    photos: state.photos,
+    topics: state.topics,
+    searchTerm: state.searchTerm,
     addFavPhoto,
     removeFavPhoto,
-    iconLiked,
-    iconUnliked,
-    favPhotoExists,
+    updateAlert,
+    toggleFavorite,
+    setCurrentTopic,
     openModal,
-    closeModal
+    closeModal,
+    setSearchTerm
   };
 };
 
