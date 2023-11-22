@@ -4,7 +4,6 @@ import "../styles/PhotoList.scss";
 import PhotoListItem from "./PhotoListItem";
 
 const PhotoList = (props) => {
-  // Map through the photos array and create a PhotoListItem component for each photo
   const photoArray = props.photos.map((
     { id,
       location: { city, country },
@@ -34,9 +33,7 @@ const PhotoList = (props) => {
       />
     );
   });
-
   return (
-    // Render the list of photos
     <ul className="photo-list">
       {photoArray}
     </ul>

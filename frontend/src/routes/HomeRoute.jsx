@@ -29,9 +29,7 @@ const HomeRoute = (props) => {
   };
 
   return (
-    // Container for the home route
     <div className={`home-route${darkMode ? '-dark-mode' : ''}`}>
-      {/* Render the TopNavigationBar component */}
       <TopNavigationBar
         topics={topics}
         isFavPhotoExist={isFavPhotoExist}
@@ -43,7 +41,6 @@ const HomeRoute = (props) => {
         darkMode={darkMode}
       />
       <div className="home-route__images">
-        {/* Render the PhotoList component */}
         <PhotoList
           photos={photos ? photos : []}
           selected={selected}

@@ -4,7 +4,6 @@ import axios from 'axios';
 
 const useApplicationData = () => {
   const [state, dispatch] = useReducer(reducer, {
-    // Initial state
     isModalOpen: false,
     selectedPhoto: null,
     selected: false,
@@ -18,7 +17,6 @@ const useApplicationData = () => {
     darkMode: false
   });
 
-  // Action functions
   const closeModal = () => {
     dispatch({ type: ACTIONS.CLOSE_MODAL });
   };
@@ -83,7 +81,6 @@ const useApplicationData = () => {
     dispatch({ type: ACTIONS.TOGGLE_DARK_MODE });
   };
 
-  // Fetch functions
   const fetchPhotos = useCallback(() => {
     axios.get('/api/photos')
       .then((res) => setPhotoData(res.data))
@@ -131,21 +128,24 @@ const useApplicationData = () => {
       .catch((error) => console.error("Error occurred: ", error));
   });
 
-  // Fetch + render photos/topics and if the current topic changes, re-render with the right photos
+  // fetch + render photos/topics and if the current topic changes, re-render with the right photos
   useEffect(() => {
     fetchTopics();
     if (state.searchTerm) {
       fetchSearchResult();
-    } else if (state.currentTopic) {
+    } else
+    if (state.currentTopic) {
       fetchCurrentTopic();
-    } else if (state.displayFavorites) {
+    } else
+    if (state.displayFavorites) {
       fetchFavorites();
     } else {
       fetchPhotos();
     }
+    
   }, [state.currentTopic, state.searchTerm, state.displayFavorites, state.favorites, state.darkMode]);
+  
 
-  // Return state and action functions
   return {
     isModalOpen: state.isModalOpen,
     selectedPhoto: state.selectedPhoto,

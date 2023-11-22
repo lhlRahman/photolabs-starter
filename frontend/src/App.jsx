@@ -1,25 +1,64 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import './App.scss';
 import HomeRoute from 'routes/HomeRoute';
-import photos from 'mocks/photos';
-import topics from 'mocks/topics';
 import PhotoDetailsModal from 'routes/PhotoDetailsModal';
-import useApplicationData from './hook/useApplicationData';
+import useApplicationData from 'hook/useApplicationData';
 
 const App = () => {
-  // Destructure the values from the custom hook useApplicationData
-  const {isModalOpen, selectedPhoto, favorites, selected, displayAlert, openModal, closeModal, addFavPhoto, removeFavPhoto, iconLiked, iconUnliked} = useApplicationData();
+  const {
+    toggleFavorite,
+    updateAlert,
+    openModal,
+    closeModal,
+    addFavPhoto,
+    removeFavPhoto,
+    setCurrentTopic,
+    setSearchTerm,
+    showFavorites,
+    toggleDarkMode,
+    isModalOpen,
+    selectedPhoto,
+    favorites,
+    selected,
+    displayAlert,
+    photos,
+    topics,
+    displayFavorites,
+    darkMode
+  } = useApplicationData();
+
+  const isPhotoFavorited = (photo) => {
+    return favorites.has(photo);
+  };
 
   return (
-    // Container for the entire application
-    <div className="App">
-      {/* Render the HomeRoute component */}
-      <HomeRoute photos={photos} topics={topics} favorites={favorites} selected={selected} displayAlert={displayAlert} addFavPhoto={addFavPhoto} removeFavPhoto={removeFavPhoto} onClick={openModal} iconLiked={iconLiked} iconUnliked={iconUnliked} />
-      {/* Render the PhotoDetailsModal component if the modal is open */}
+    <div className={`App${darkMode ? '-dark-mode' : ''}`}>
+      <HomeRoute
+        photos={photos}
+        topics={topics}
+        favorites={favorites}
+        selected={selected}
+        displayAlert={displayAlert}
+        displayFavorites={displayFavorites}
+        addFavPhoto={addFavPhoto}
+        removeFavPhoto={removeFavPhoto}
+        onClick={openModal}
+        toggleFavorite={toggleFavorite}
+        updateAlert={updateAlert}
+        setCurrentTopic={setCurrentTopic}
+        setSearchTerm={setSearchTerm}
+        showFavorites={showFavorites}
+        toggleDarkMode={toggleDarkMode}
+        darkMode={darkMode}
+      />
       {isModalOpen && <PhotoDetailsModal
         {...selectedPhoto}
+        toggleFavorite={toggleFavorite}
+        isPhotoFavorited={isPhotoFavorited}
+        updateAlert={updateAlert}
         onClick={closeModal}
+        darkMode={darkMode}
       />}
     </div>
   );
